@@ -13,31 +13,60 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentDayId = null;
   let currentMode = 'full';
   
-  // Progress and weight tracking via localStorage
+  // Progress and weight tracking via localStorage and Vercel KV
   const PROGRESS_STORAGE_KEY = 'hybrid_workout_progress';
   const WEIGHT_STORAGE_KEY = 'hybrid_workout_weights';
 
-  function loadStoredData(key) {
+  let progress = {};
+  let weights = {};
+
+  async function loadProgressFromServer() {
     try {
-      return JSON.parse(localStorage.getItem(key)) || {};
-    } catch {
-      return {};
+      const res = await fetch('/api/progress');
+      if (res.ok) {
+        const val = await res.json();
+        progress = val.progress || {};
+        weights = val.weights || {};
+        // Sync locally as backup
+        localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
+        localStorage.setItem(WEIGHT_STORAGE_KEY, JSON.stringify(weights));
+        return;
+      }
+    } catch (e) {
+      console.error('Failed to load progress from Vercel KV, using localStorage fallback:', e);
+    }
+    // Fallback
+    progress = JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)) || {};
+    weights = JSON.parse(localStorage.getItem(WEIGHT_STORAGE_KEY)) || {};
+  }
+
+  async function syncToVercelKV() {
+    try {
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ progress, weights })
+      });
+    } catch (e) {
+      console.error('Failed to save to Vercel KV:', e);
     }
   }
 
-  let progress = loadStoredData(PROGRESS_STORAGE_KEY);
-  let weights = loadStoredData(WEIGHT_STORAGE_KEY);
-
-  function saveProgress() {
+  async function saveProgress() {
     localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
+    await syncToVercelKV();
   }
 
-  function saveWeights() {
+  async function saveWeights() {
     localStorage.setItem(WEIGHT_STORAGE_KEY, JSON.stringify(weights));
+    await syncToVercelKV();
   }
 
   // Initialization
-  function init() {
+  async function init() {
+    await loadProgressFromServer();
     renderHome();
   }
 

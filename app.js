@@ -13,12 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentDayId = null;
   let currentMode = 'full';
   
-  // Progress tracking via localStorage
-  const STORAGE_KEY = 'hybrid_workout_progress';
-  let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  // Progress and weight tracking via localStorage
+  const PROGRESS_STORAGE_KEY = 'hybrid_workout_progress';
+  const WEIGHT_STORAGE_KEY = 'hybrid_workout_weights';
+
+  function loadStoredData(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  let progress = loadStoredData(PROGRESS_STORAGE_KEY);
+  let weights = loadStoredData(WEIGHT_STORAGE_KEY);
 
   function saveProgress() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function saveWeights() {
+    localStorage.setItem(WEIGHT_STORAGE_KEY, JSON.stringify(weights));
   }
 
   // Initialization
@@ -72,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure state object exists
     if (!progress[currentDayId]) progress[currentDayId] = {};
     if (!progress[currentDayId][currentMode]) progress[currentDayId][currentMode] = {};
+    if (!weights[currentDayId]) weights[currentDayId] = {};
 
     exercises.forEach((ex, exIndex) => {
       // Parse sets safely, assume standard max like 4 if it's '3-4'
@@ -88,6 +104,51 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="exercise-title">${ex.name}</div>
         <div class="exercise-meta">${ex.sets} Sets • ${ex.reps} Reps</div>
       `;
+
+      // The image path identifies the same exercise across intensity modes.
+      const weightKey = ex.image;
+      const weightField = document.createElement('label');
+      weightField.className = 'weight-field';
+
+      const weightLabel = document.createElement('span');
+      weightLabel.className = 'weight-label';
+      weightLabel.textContent = 'น้ำหนัก';
+
+      const weightControl = document.createElement('span');
+      weightControl.className = 'weight-control';
+
+      const weightInput = document.createElement('input');
+      weightInput.className = 'weight-input';
+      weightInput.type = 'number';
+      weightInput.min = '0';
+      weightInput.step = '0.5';
+      weightInput.inputMode = 'decimal';
+      weightInput.placeholder = '0';
+      weightInput.setAttribute('aria-label', `น้ำหนักสำหรับ ${ex.name} หน่วยกิโลกรัม`);
+      weightInput.value = weights[currentDayId][weightKey] ?? '';
+
+      const weightUnit = document.createElement('span');
+      weightUnit.className = 'weight-unit';
+      weightUnit.textContent = 'kg';
+
+      weightInput.addEventListener('input', () => {
+        if (weightInput.value === '') {
+          delete weights[currentDayId][weightKey];
+          saveWeights();
+          return;
+        }
+
+        const value = Number(weightInput.value);
+        if (Number.isFinite(value) && value >= 0) {
+          weights[currentDayId][weightKey] = value;
+          saveWeights();
+        }
+      });
+
+      weightControl.appendChild(weightInput);
+      weightControl.appendChild(weightUnit);
+      weightField.appendChild(weightLabel);
+      weightField.appendChild(weightControl);
       
       const setsContainer = document.createElement('div');
       setsContainer.className = 'sets-container';
@@ -118,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       item.appendChild(header);
+      item.appendChild(weightField);
       item.appendChild(setsContainer);
       exerciseContainer.appendChild(item);
     });

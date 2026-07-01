@@ -1,0 +1,247 @@
+:root {
+  --bg-color: #121212;
+  --surface-color: #1e1e1e;
+  --surface-color-hover: #2c2c2c;
+  --primary-color: #bb86fc;
+  --primary-variant: #3700b3;
+  --secondary-color: #03dac6;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #333333;
+  --success-color: #4caf50;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Typography */
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Layout */
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 16px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-right: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.back-btn:active {
+  background-color: var(--surface-color);
+}
+
+/* Screens */
+.screen {
+  display: none;
+  flex: 1;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Day Cards */
+.days-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.card {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  border: 1px solid var(--border-color);
+}
+
+.card:active {
+  transform: scale(0.98);
+  background-color: var(--surface-color-hover);
+}
+
+.card h2 {
+  margin: 0 0 4px 0;
+}
+
+/* Modes Selection */
+.mode-selector {
+  margin-bottom: 24px;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn.active {
+  background-color: var(--primary-color);
+  color: #000;
+  border-color: var(--primary-color);
+}
+
+/* Exercises */
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.exercise-item {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.exercise-header {
+  margin-bottom: 12px;
+}
+
+.exercise-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.exercise-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.exercise-meta {
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+  margin-top: 4px;
+}
+
+/* Sets and Checkboxes */
+.sets-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.set-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.set-btn.completed {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.set-btn:active {
+  transform: scale(0.9);
+}
+
+/* Reset Button */
+.reset-btn {
+  margin-top: 32px;
+  width: 100%;
+  padding: 16px;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reset-btn:active {
+  background-color: var(--surface-color);
+}

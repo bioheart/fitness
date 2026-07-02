@@ -175,7 +175,7 @@ header {
 
 .exercise-image {
   display: block;
-  max-width: 160px;
+  max-width: 220px;
   width: 100%;
   height: auto;
   object-fit: contain;

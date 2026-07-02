@@ -68,9 +68,24 @@ document.addEventListener('DOMContentLoaded', () => {
   async function init() {
     await loadProgressFromServer();
     renderHome();
+    handleRouting();
   }
 
   // Navigation
+  function handleRouting() {
+    const hash = window.location.hash; // e.g. '#/day-1'
+    if (hash.startsWith('#/day-')) {
+      const slug = hash.replace('#/', ''); // 'day-1'
+      const dayId = slug.replace('day-', 'day'); // 'day1'
+      const dayData = workoutPlan.find(d => d.id === dayId);
+      if (dayData) {
+        showWorkout(dayId);
+        return;
+      }
+    }
+    showHome();
+  }
+
   function showHome() {
     workoutScreen.classList.remove('active');
     homeScreen.classList.add('active');
@@ -101,7 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <h2>${day.title}</h2>
         <p>${day.description}</p>
       `;
-      card.addEventListener('click', () => showWorkout(day.id));
+      // Map 'day1' to 'day-1' slug
+      const slug = day.id.replace('day', 'day-');
+      card.addEventListener('click', () => {
+        window.location.hash = `#/${slug}`;
+      });
       daysContainer.appendChild(card);
     });
   }
@@ -215,7 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Event Listeners
-  backBtn.addEventListener('click', showHome);
+  backBtn.addEventListener('click', () => {
+    window.location.hash = '';
+  });
+
+  window.addEventListener('hashchange', handleRouting);
 
   modeButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
